@@ -203,9 +203,37 @@ def test_4d_qmatmul():
 
 
 if __name__ == '__main__':
-	set_seed(114514)
-	# test_kcache()
-	# test_vcache()
-	# test_4d_qmatmul()
-	# test_streaming_kvcache()
-	test_bmm_speed()
+    set_seed(114514)
+    
+    # test_kcache()
+    # 测试Key Cache的量化精度
+    # - 验证Key cache按channel维度量化后的反量化精度
+    # - 测试2-bit, 4-bit, 8-bit量化的相对误差
+    # - Key cache需要转置(T,D)->(D,T)后按D维度分组量化
+    
+    # test_vcache()
+    # 测试Value Cache的量化精度
+    # - 验证Value cache按token维度量化后的反量化精度
+    # - 测试不同bit数下的量化误差
+    # - Value cache直接按最后一个维度(head_dim)分组量化
+    
+    # test_4d_qmatmul()
+    # 测试端到端的量化矩阵乘法正确性
+    # - 完整测试Query @ Key_quantized的计算流程
+    # - 验证量化kernel输出与PyTorch标准矩阵乘法的误差
+    # - 包含量化、重排、矩阵乘法、反量化的完整流程
+    
+    # test_streaming_kvcache()
+    # 测试流式KV Cache在实际推理场景下的精度
+    # - 模拟16步token生成过程，每步添加新的KV states
+    # - 混合处理量化的历史cache和全精度的新token
+    # - 验证attention权重和输出与全精度参考的累积误差
+    # - 最接近真实LLM推理的测试场景
+    
+    test_bmm_speed()
+    # 性能基准测试 - 最重要的性能对比测试
+    # - 对比KIVI优化kernel vs PyTorch标准实现的执行速度
+    # - 测试量化操作(quant & pack)的性能开销
+    # - 测试Query-Key矩阵乘法的加速比
+    # - 测试Attention-Value矩阵乘法的加速比
+    # - 输出详细的性能数据，验证KIVI的实际加速效果
